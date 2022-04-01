@@ -19,3 +19,6 @@ Monte-Carlo data was created using the [SimChainDev](https://github.com/E1039-Co
 
 `debug.ipynb` notebook was used for debuging the main module.
 
+
+
+*	Use `jsroot` for interactive plots.
