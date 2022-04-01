@@ -16,7 +16,7 @@ R__LOAD_LIBRARY(../RooUnfold/libRooUnfold)
 
 using namespace std;
 
-RooUnfoldResponse* train_matrix(TString file_name, TString matrix_name, double pt_min, double pt_max, double phi_min, double phi_max, double phi_bins, double int_lumi, double exp_lumi)
+RooUnfoldResponse* train_matrix(TString file_name, TString matrix_name, double pt_min, double pt_max, double phi_min, double phi_max, double phi_bins)
 {
 	cout << "read from file : " << file_name.Data() << endl;
 
@@ -38,31 +38,19 @@ RooUnfoldResponse* train_matrix(TString file_name, TString matrix_name, double p
 
 	cout << "train response matrix : " << matrix_name.Data() << endl;
 
-	/*TH1D* true_hist = new TH1D("true_hist", "; #phi(rad); Yield", phi_bins, phi_min, phi_max);
-	TH1D* reco_hist = new TH1D("reco_hist", "; #phi(rad); Yield", phi_bins, phi_min, phi_max);
-	TH2D* hist = new TH2D("hist", "; true_phi; reco_phi", phi_bins, phi_min, phi_max, phi_bins, phi_min, phi_max);*/
-
 	for(int i = 0; i < n; i++)
 	{
 		tree->GetEntry(i);
 		if(pt_min < true_pt && true_pt < pt_max)
 		{
-			//true_hist->Fill(true_phi, weight);
 			if(reco_stat == 0)
 			{
-				//reco_hist->Fill(reco_phi, weight);
-				//hist->Fill(true_phi, reco_phi, weight);
-				if(2.5 < reco_mass && reco_mass < 4.0){matrix->Fill(reco_phi, true_phi);}
+				//if(2.5 < reco_mass && reco_mass < 4.0){matrix->Fill(reco_phi, true_phi);}
+                matrix->Fill(reco_phi, true_phi);
 
 			}
 		}
 	}
-
-	/*true_hist->Scale(exp_lumi/int_lumi);
-	reco_hist->Scale(exp_lumi/int_lumi);
-	//hist->Scale(exp_lumi/int_lumi);
-
-	RooUnfoldResponse* matrix = new RooUnfoldResponse(reco_hist, true_hist, hist);*/
 
 	return matrix;
 }
