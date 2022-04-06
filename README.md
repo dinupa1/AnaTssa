@@ -22,3 +22,4 @@ Monte-Carlo data was created using the [SimChainDev](https://github.com/E1039-Co
 
 
 *	Use `jsroot` for interactive plots.
+*	Note that `ROOT` is build using `python2` in `gpvm` machine. Therefore, `jupyterlab` and `scikit-learn` will not work in `gpvm` machine.
