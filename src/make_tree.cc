@@ -12,7 +12,8 @@ R__LOAD_LIBRARY(libana_sim_dst)
 
 using namespace std;
 
-const double pi = TMath::Pi(), P = 0.95;
+const double pi = TMath::Pi(), P = 1.0, D = 1.0;
+int x;
 
 void data_tree(TString in_name, TString out_name, TString tree_name, double spin, double A_N)
 {
@@ -64,11 +65,13 @@ void data_tree(TString in_name, TString out_name, TString tree_name, double spin
 	{
 		for(int i = 0; i < n/2; i++)
 		{
-			in_tree->GetEntry(i);
+			in_tree->LoadBaskets(99999999999);
+			x = gRandom->Uniform(0,1)* (n/2 - 0) + 0;
+			in_tree->GetEntry(x);
 			reco_stat = ed->rec_stat;
 			true_mass = true_dimu->at(0).mom.M();
 			true_phi = true_dimu->at(0).mom.Phi();
-			double phi_weight = 1 + A_N* P* sin(true_phi + spin); // 0 or pi for spin up/down case -> weight make the histogram
+			double phi_weight = 1 + A_N* P* D* sin(true_phi + spin); // 0 or pi for spin up/down case -> weight make the histogram
 			weight = phi_weight* ed->weight;
 			true_pt = true_dimu->at(0).mom.Perp();
 			true_x1 = true_dimu->at(0).x1;
@@ -88,11 +91,13 @@ void data_tree(TString in_name, TString out_name, TString tree_name, double spin
 	{
 		for(int i = n/2; i < n; i++)
 		{
-			in_tree->GetEntry(i);
+			in_tree->LoadBaskets(99999999999);
+			x = gRandom->Uniform(0,1)* (n - n/2) + n/2;
+			in_tree->GetEntry(x);
 			reco_stat = ed->rec_stat;
 			true_mass = true_dimu->at(0).mom.M();
 			true_phi = true_dimu->at(0).mom.Phi();
-			double phi_weight = 1 + A_N* P* sin(true_phi + spin); // 0 or pi for spin up/down case -> weight make the histogram
+			double phi_weight = 1 + A_N* P* D* sin(true_phi + spin); // 0 or pi for spin up/down case -> weight make the histogram
 			weight = phi_weight* ed->weight;
 			true_pt = true_dimu->at(0).mom.Perp();
 			true_x1 = true_dimu->at(0).x1;
@@ -185,24 +190,18 @@ void train_tree(TString in_name, TString out_name, TString tree_name)
 
 void make_tree()
 {
-	const int ntype = 2;
 	const int nspin = 2;
-	const char* data_file[ntype] = {"jpsi_03_08_2022.root", "drell_yan_03_07_2022.root"};
-	const char* out_file[ntype][nspin] = {{"jpsi_5_0.root", "jpsi_5_1.root"}, {"drell_yan_5_0.root", "drell_yan_5_1.root"}};
-	const double A_N[ntype] = {0.05, 0.02};
 	const double spin[nspin] = {0.0, pi};
-	const char* tree_name[ntype][nspin] = {{"A_N = 0.05, spin = 0.0", "A_N = 0.05, spin = pi"}, {"A_N = 0.02, spin = 0", "A_N = 0.02, spin = pi"}};
+	const double A_N = 1.0;
+
+	TString data_file("jpsi_03_08_2022.root");
+	TString out_file[nspin] = {"jpsi_1_0.root", "jpsi_1_1.root"};
+	TString tree_name[nspin] = {"A_N = 1.0, spin = 0.0", "A_N = 1.0, spin = pi"};
 
 	// make drell-yan data for training response matrix
 	//train_tree("drell_yan_03_07_2022.root", "train_data.root", "A_N = 0, spin = 0");
 
-
 	// make data for analysis
-	for(int i = 0; i < ntype; i++)
-	{
-		for(int j = 0; j < nspin; j++)
-		{
-			data_tree(data_file[i], out_file[i][j], tree_name[i][j], spin[j], A_N[i]);
-		}
-	}
+	for(int i = 0; i < nspin; i++){data_tree(data_file.Data(), out_file[i].Data(), tree_name[i].Data(), spin[i], A_N);}
+
 }
