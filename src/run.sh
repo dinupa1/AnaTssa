@@ -5,11 +5,11 @@ source ../setup.sh
 echo
 
 jspi_AN_array=(1.0 0.5 0.2 0.1 0.05)
-background_AN_array=(0.5 0.2 0.1 0.05 0.02)
+back_AN_array=(0.5 0.2 0.1 0.05 0.02)
 spin_array=(0.0 pi)
 
 jpsi_data="jpsi_data.root"
-background_data="drell_yan_data.root"
+back_data="drell_yan_data.root"
 
 # create data for signal and background
 
@@ -26,9 +26,9 @@ do
 
 		# echo $jpsi_macro
 
-		background_outfile="drell_yan_${i+1}_${j}.root"
-		background_tree="A_N = ${background_AN_array[i]} , spin = ${spin_array[j]}"
-		background_macro="make_tree.cc(\"$background_data\", \"$background_outfile\", \"$background_tree\", ${spin_array[j]}, ${background_AN_array[i]})"
+		back_outfile="drell_yan_${i+1}_${j}.root"
+		back_tree="A_N = ${back_AN_array[i]} , spin = ${spin_array[j]}"
+		back_macro="make_tree.cc(\"$back_data\", \"$back_outfile\", \"$back_tree\", ${spin_array[j]}, ${back_AN_array[i]})"
 		root -q -b "$background_macro"
 
 		# echo $background_macro
