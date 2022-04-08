@@ -15,7 +15,7 @@ back_data="drell_yan_data.root"
 
 echo "*** create jpsi & background events ***"
 
-for (( i=0; i<2; i++ ))
+for (( i=0; i<1; i++ ))
 do
 	for (( j=0; j<2; j++ ))
 	do
