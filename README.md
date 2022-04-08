@@ -9,7 +9,7 @@ Instruction for installing these packages can be found in the given links.
 
 ## Data Creation
 
-Monte-Carlo data was created using the [SimChainDev](https://github.com/E1039-Collaboration/e1039-analysis/tree/master/SimChainDev) module and `run.sh` script was used to create asymmetry added data with simple tree structure. By defaul it assume taht names of the `jpsi` and `drell-yan` event files as `jpsi_data.root` and `drell_yan_data.root` respectively. Here `drell-yan` events were considered as background data.
+Monte-Carlo data was created using the [SimChainDev](https://github.com/E1039-Collaboration/e1039-analysis/tree/master/SimChainDev) module and `run.sh` script was used to create asymmetry added data with simple tree structure. By default it assume taht names of the `jpsi` and `drell-yan` event files as `jpsi_data.root` and `drell_yan_data.root` respectively. Here `drell-yan` events were considered as background data.
 
 ## Analysis
 
