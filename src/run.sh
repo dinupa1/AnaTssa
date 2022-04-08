@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# source ../setup.sh
+source ../setup.sh
 
 echo
 
@@ -22,24 +22,24 @@ do
 		jpsi_outfile="jpsi_${i}_${j}.root"
 		jpsi_tree="A_N = ${jspi_AN_array[i]} , spin = ${spin_array[j]}"
 		jpsi_macro="make_tree.cc(\"$jpsi_data\", \"$jpsi_outfile\", \"$jpsi_tree\", ${spin_array[j]}, ${jspi_AN_array[i]})"
-		# root -q -b "$jpsi_macro"
+		root -q -b "$jpsi_macro"
 
-		echo $jpsi_macro
+		# echo $jpsi_macro
 
 		back_outfile="drell_yan_${i}_${j}.root"
 		back_tree="A_N = ${back_AN_array[i]} , spin = ${spin_array[j]}"
 		back_macro="make_tree.cc(\"$back_data\", \"$back_outfile\", \"$back_tree\", ${spin_array[j]}, ${back_AN_array[i]})"
-		# root -q -b "$back_macro"
+		root -q -b "$back_macro"
 
-		echo $back_macro
+		# echo $back_macro
 
 	done
 done
 
-# create data for training responce matrix
+create data for training responce matrix
 
-# echo "creating data for training response matrix"
+echo "creating data for training response matrix"
 
-# root -q -b 'train_tree.cc("drell_yan_data.root", "train_data.root", "data for training response matrix")'
+root -q -b 'train_tree.cc("drell_yan_data.root", "train_data.root", "data for training response matrix")'
 
 echo "*** done ***"
