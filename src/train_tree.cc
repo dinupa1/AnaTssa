@@ -14,7 +14,7 @@ using namespace std;
 
 const double pi = TMath::Pi(), P = 1.0, D = 1.0;
 
-void make_tree(TString in_name, TString out_name, TString tree_name, double spin, double A_N)
+void train_tree(TString in_name, TString out_name, TString tree_name)
 {
 	// read the tree created by AnaSimDst
 	cout << "read from file : " << in_name.Data() << endl;
@@ -23,10 +23,6 @@ void make_tree(TString in_name, TString out_name, TString tree_name, double spin
 	int n = in_tree->GetEntries();
 
 	cout << "entries : " << n << endl;
-
-	cout << "spin : " << spin << endl;
-
-	cout << "A_N : " << A_N << endl;
 
 	EventData* ed = new EventData();
 	DimuonList* true_dimu = new DimuonList();
@@ -60,68 +56,28 @@ void make_tree(TString in_name, TString out_name, TString tree_name, double spin
 	out_tree->Branch("reco_x2", &reco_x2, "reco_x2/D");
 	out_tree->Branch("reco_xf", &reco_x2, "reco_xf/D");
 
-	// random number generator
-	TRandom3 *rand_gen = new TRandom3();
-	double rand1;
-	int randi;
-
-	in_tree->LoadBaskets(99999999999);
-
-	if(spin == 0)
+	for(int i = 0; i < n; i++)
 	{
-		for(int i = 0; i < n/2; i++)
-		{
-			rand1 = rand_gen->Rndm(i);
-			randi = TMath::Nint(rand1*(n/2 - 0.0) + 0.0);
-			in_tree->GetEntry(randi);
-			reco_stat = ed->rec_stat;
-			true_mass = true_dimu->at(0).mom.M();
-			true_phi = true_dimu->at(0).mom.Phi();
-			double phi_weight = 1 + A_N* P* D* sin(true_phi + spin); // 0 or pi for spin up/down case -> weight make the histogram
-			weight = phi_weight* ed->weight;
-			true_pt = true_dimu->at(0).mom.Perp();
-			true_x1 = true_dimu->at(0).x1;
-			true_x2 = true_dimu->at(0).x2;
-			true_xf = true_x1 - true_x2;
-			reco_mass = reco_dimu->at(0).mom.M();
-			reco_phi = reco_dimu->at(0).mom.Phi();
-			reco_pt = reco_dimu->at(0).mom.Perp();
-			reco_x1 = reco_dimu->at(0).x1;
-			reco_x2 = reco_dimu->at(0).x2;
-			reco_xf = reco_x1 - reco_x2;
-			out_tree->Fill();
-		}
+		in_tree->GetEntry(i);
+		reco_stat = ed->rec_stat;
+		true_mass = true_dimu->at(0).mom.M();
+		true_phi = true_dimu->at(0).mom.Phi();
+		//double phi_weight = 1 + A_N* P* sin(true_phi + spin); // 0 or pi for spin up/down case -> weight make the histogram
+		weight = ed->weight;
+		true_pt = true_dimu->at(0).mom.Perp();
+		true_x1 = true_dimu->at(0).x1;
+		true_x2 = true_dimu->at(0).x2;
+		true_xf = true_x1 - true_x2;
+		reco_mass = reco_dimu->at(0).mom.M();
+		reco_phi = reco_dimu->at(0).mom.Phi();
+		reco_pt = reco_dimu->at(0).mom.Perp();
+		reco_x1 = reco_dimu->at(0).x1;
+		reco_x2 = reco_dimu->at(0).x2;
+		reco_xf = reco_x1 - reco_x2;
+		out_tree->Fill();
 	}
-
-	if(spin == pi )
-	{
-		for(int i = n/2; i < n; i++)
-		{
-			rand1 = rand_gen->Rndm(i);
-			randi = TMath::Nint(rand1*(n - n/2) + n/2);
-			in_tree->GetEntry(randi);
-			reco_stat = ed->rec_stat;
-			true_mass = true_dimu->at(0).mom.M();
-			true_phi = true_dimu->at(0).mom.Phi();
-			double phi_weight = 1 + A_N* P* D* sin(true_phi + spin); // 0 or pi for spin up/down case -> weight make the histogram
-			weight = phi_weight* ed->weight;
-			true_pt = true_dimu->at(0).mom.Perp();
-			true_x1 = true_dimu->at(0).x1;
-			true_x2 = true_dimu->at(0).x2;
-			true_xf = true_x1 - true_x2;
-			reco_mass = reco_dimu->at(0).mom.M();
-			reco_phi = reco_dimu->at(0).mom.Phi();
-			reco_pt = reco_dimu->at(0).mom.Perp();
-			reco_x1 = reco_dimu->at(0).x1;
-			reco_x2 = reco_dimu->at(0).x2;
-			reco_xf = reco_x1 - reco_x2;
-			out_tree->Fill();
-		}
-	}
-
 	out_tree->Write();
 	//out_file->Write();
-	in_tree->DropBaskets();
 	out_file->Close();
 	cout << "***				***" << endl;
 }
