@@ -36,7 +36,7 @@ do
 	done
 done
 
-create data for training responce matrix
+# create data for training responce matrix
 
 echo "creating data for training response matrix"
 
