@@ -19,19 +19,19 @@ for (( i=0; i<1; i++ ))
 do
 	for (( j=0; j<2; j++ ))
 	do
-		jpsi_outfile="jpsi_${i}_${j}.root"
+		jpsi_outfile="jpsi_${i+1}_${j}.root"
 		jpsi_tree="A_N = ${jspi_AN_array[i]} , spin = ${spin_array[j]}"
 		jpsi_macro="make_tree.cc(\"$jpsi_data\", \"$jpsi_outfile\", \"$jpsi_tree\", ${spin_array[j]}, ${jspi_AN_array[i]})"
 		root -q -b "$jpsi_macro"
 
-		#echo $jpsi_macro
+		# echo $jpsi_macro
 
-		background_outfile="drell_yan_${i}_${j}.root"
+		background_outfile="drell_yan_${i+1}_${j}.root"
 		background_tree="A_N = ${background_AN_array[i]} , spin = ${spin_array[j]}"
 		background_macro="make_tree.cc(\"$background_data\", \"$background_outfile\", \"$background_tree\", ${spin_array[j]}, ${background_AN_array[i]})"
 		root -q -b "$background_macro"
 
-		#echo $background_macro
+		# echo $background_macro
 
 	done
 done
