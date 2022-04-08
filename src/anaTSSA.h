@@ -12,13 +12,16 @@ R__LOAD_LIBRARY(../RooUnfold/libRooUnfold)
 #include <RooUnfoldResponse.h>
 #include <RooUnfoldBayes.h>
 #include <Riostream.h>
+#include <TMatrixD.h>
+#include <TMath.h>
 #include <tuple>
 
 using namespace std;
 
-RooUnfoldResponse* train_matrix(TString file_name, TString matrix_name, double pt_min, double pt_max, double phi_min, double phi_max, double phi_bins)
+
+RooUnfoldResponse* pt_matrix(TString file_name, TString matrix_name, double pt_min, double pt_max, double phi_min, double phi_max, double phi_bins)
 {
-	cout << "read from file : " << file_name.Data() << endl;
+	/*cout << "read from file : " << file_name.Data() << endl;*/
 
 	TFile* file = TFile::Open(file_name.Data(), "READ");
 	TTree* tree = (TTree*)file->Get("tree");
@@ -34,9 +37,9 @@ RooUnfoldResponse* train_matrix(TString file_name, TString matrix_name, double p
 	tree->SetBranchAddress("reco_phi", &reco_phi);
 	tree->SetBranchAddress("reco_mass", &reco_mass);
 
-	RooUnfoldResponse* matrix = new RooUnfoldResponse(phi_bins, phi_min, phi_max, matrix_name.Data());
+	RooUnfoldResponse* matrix = new RooUnfoldResponse(phi_bins, phi_min, phi_max, matrix_name.Data(), "; true #phi(rad); reco. #phi(rad)");
 
-	cout << "train response matrix : " << matrix_name.Data() << endl;
+	/*cout << "train response matrix : " << matrix_name.Data() << endl;*/
 
 	for(int i = 0; i < n; i++)
 	{
@@ -55,11 +58,50 @@ RooUnfoldResponse* train_matrix(TString file_name, TString matrix_name, double p
 	return matrix;
 }
 
-TH1D* make_histo(TString file_name, TString hist_name, double pt_min, double pt_max, double phi_min, double phi_max, double mass_min, double mass_max, double mass_bins, double int_lumi, double exp_lumi)
+RooUnfoldResponse* xf_matrix(TString file_name, TString matrix_name, double xf_min, double xf_max, double phi_min, double phi_max, double phi_bins)
 {
-	cout << "read from file : " << file_name.Data() << endl;
+	/*cout << "read from file : " << file_name.Data() << endl;*/
+
+	TFile* file = TFile::Open(file_name.Data(), "READ");
+	TTree* tree = (TTree*)file->Get("tree");
+	int n = tree->GetEntries();
+
+	int reco_stat;
+	double weight, true_xf, true_phi, reco_phi, reco_mass;
+
+	tree->SetBranchAddress("reco_stat", &reco_stat);
+	tree->SetBranchAddress("weight", &weight);
+	tree->SetBranchAddress("true_xf", &true_xf);
+	tree->SetBranchAddress("true_phi", &true_phi);
+	tree->SetBranchAddress("reco_phi", &reco_phi);
+	tree->SetBranchAddress("reco_mass", &reco_mass);
+
+	RooUnfoldResponse* matrix = new RooUnfoldResponse(phi_bins, phi_min, phi_max, matrix_name.Data(), "; true #phi(rad); reco. #phi(rad)");
+
+	/*cout << "train response matrix : " << matrix_name.Data() << endl;*/
+
+	for(int i = 0; i < n; i++)
+	{
+		tree->GetEntry(i);
+		if(xf_min < true_xf && true_xf < xf_max)
+		{
+			if(reco_stat == 0)
+			{
+				//if(2.5 < reco_mass && reco_mass < 4.0){matrix->Fill(reco_phi, true_phi);}
+				matrix->Fill(reco_phi, true_phi);
+
+			}
+		}
+	}
+
+	return matrix;
+}
+
+TH1D* pt_histo(TString file_name, TString hist_name, double pt_min, double pt_max, double phi_min, double phi_max, double mass_min, double mass_max, double mass_bins, double int_lumi, double exp_lumi)
+{
+	/*cout << "read from file : " << file_name.Data() << endl;
 	cout << "total integrated luminocity : " << int_lumi << endl;
-	cout << "expected luminicity : " << exp_lumi << endl;
+	cout << "expected luminicity : " << exp_lumi << endl;*/
 
 	TFile* file = TFile::Open(file_name.Data(), "READ");
 	TTree* tree = (TTree*)file->Get("tree");
@@ -74,7 +116,9 @@ TH1D* make_histo(TString file_name, TString hist_name, double pt_min, double pt_
 	tree->SetBranchAddress("reco_phi", &reco_phi);
 	tree->SetBranchAddress("reco_mass", &reco_mass);
 
-	TH1D* hist = new TH1D(hist_name.Data(), "; mass(GeV/c^{2}); Yield", mass_bins, mass_min, mass_max);
+	TString hist_title = Form("%f < pT < %f & %f < #phi < %f; mass(GeV/c^{2}); Yield", pt_min, pt_max, phi_min, phi_max);
+
+	TH1D* hist = new TH1D(hist_name.Data(), hist_title.Data(), mass_bins, mass_min, mass_max);
 
 	//cout << "fill histo : " << hist_name.Data() << endl;
 
@@ -84,6 +128,52 @@ TH1D* make_histo(TString file_name, TString hist_name, double pt_min, double pt_
 		if(reco_stat == 0)
 		{
 			if(pt_min < reco_pt && reco_pt < pt_max)
+			{
+				if(phi_min < reco_phi && reco_phi < phi_max)
+				{
+					//cout << "pt_min : " << pt_min << " pt_max : " << pt_max << " phi_min : " << phi_min << " phi_max : " << phi_max << endl;
+					hist->Fill(reco_mass, weight);
+				}
+			}
+		}
+	}
+
+	hist->Scale(exp_lumi/int_lumi);
+
+	return hist;
+}
+
+TH1D* xf_histo(TString file_name, TString hist_name, double xf_min, double xf_max, double phi_min, double phi_max, double mass_min, double mass_max, double mass_bins, double int_lumi, double exp_lumi)
+{
+	/*cout << "read from file : " << file_name.Data() << endl;
+	cout << "total integrated luminocity : " << int_lumi << endl;
+	cout << "expected luminicity : " << exp_lumi << endl;*/
+
+	TFile* file = TFile::Open(file_name.Data(), "READ");
+	TTree* tree = (TTree*)file->Get("tree");
+	int n = tree->GetEntries();
+
+	int reco_stat;
+	double weight, reco_xf, reco_phi, reco_mass;
+
+	tree->SetBranchAddress("reco_stat", &reco_stat);
+	tree->SetBranchAddress("weight", &weight);
+	tree->SetBranchAddress("reco_xf", &reco_xf);
+	tree->SetBranchAddress("reco_phi", &reco_phi);
+	tree->SetBranchAddress("reco_mass", &reco_mass);
+
+	TString hist_title = Form("%f < xF < %f & %f < #phi < %f; mass(GeV/c^{2}); Yield", xf_min, xf_max, phi_min, phi_max);
+
+	TH1D* hist = new TH1D(hist_name.Data(), hist_title.Data(), mass_bins, mass_min, mass_max);
+
+	//cout << "fill histo : " << hist_name.Data() << endl;
+
+	for(int i = 0; i < n; i++)
+	{
+		tree->GetEntry(i);
+		if(reco_stat == 0)
+		{
+			if(xf_min < reco_xf && reco_xf < xf_max)
 			{
 				if(phi_min < reco_phi && reco_phi < phi_max)
 				{
@@ -116,6 +206,7 @@ void plot_mass(TH1D* h1, TH1D* h2)
 void plot_matrix(RooUnfoldResponse* matrix)
 {
 	auto M = matrix->Mresponse();
+	//M.SetStats(0);
 	TCanvas* can = new TCanvas();can->SetGrid();
 	M.Draw("COL TEXT");
 	can->Draw();
@@ -135,7 +226,7 @@ tuple<double, double> integrate(TH1D* hist, double min, double max)
 	double error;
 	double bin1 = hist->FindBin(min);
 	double bin2 = hist->FindBin(max);
-	double count = hist->IntegralAndError(bin1, bin2, error);
+	double count = hist->IntegralAndError(bin1, bin2, error, "width");
 
 	return {count, error};
 }
@@ -159,10 +250,61 @@ void plot_asym(TH1D* hist, TF1* f1)
 {
 	TCanvas* can = new TCanvas(hist->GetName()); can->SetGrid();
 
+	gStyle->SetOptFit();
 	hist->SetMarkerColor(8);
 	hist->SetMarkerStyle(8);
 	hist->Fit(f1);
 	hist->Draw("E1 P0");
 
 	can->Draw();
+}
+
+
+void pre_analysis(TString data1, TString data2, double int_lumi1, double int_lumi2, double exp_lumi)
+{
+	double pi = TMath::Pi();
+
+	TFile* file1 = TFile::Open(data1.Data(), "READ");
+	TTree* tree1 = (TTree*)file1->Get("tree");
+	int n1 = tree1->GetEntries();
+
+	TFile* file2 = TFile::Open(data2.Data(), "READ");
+	TTree* tree2 = (TTree*)file2->Get("tree");
+	int n2 = tree2->GetEntries();
+
+	TH1D* h1 = new TH1D("h1", "; mass(GeV/c^{2}); Yield", 30, 1.0, 6.0);
+	TH1D* h2 = new TH1D("h2", "; mass(GeV/c^{2}); Yield", 30, 1.0, 6.0);
+
+	TH1D* h3 = new TH1D("h3", "; pT(GeV/c); Yield", 5, 0.0, 5.0);
+	TH1D* h4 = new TH1D("h4", "; pT(GeV/c); Yield", 5, 0.0, 5.0);
+
+	TH1D* h5 = new TH1D("h5", "; xF(GeV/c); Yield", 5, 0.0, 0.5);
+	TH1D* h6 = new TH1D("h6", "; xF(GeV/c); Yield", 5, 0.0, 0.5);
+
+	tree1->Project("h1", "reco_mass", "weight*(reco_stat == 0)");
+	tree2->Project("h2", "reco_mass", "weight*(reco_stat == 0)");
+
+	tree1->Project("h3", "reco_pt", "weight*(reco_stat == 0)");
+	tree2->Project("h4", "reco_pt", "weight*(reco_stat == 0)");
+
+	tree1->Project("h5", "reco_xf", "weight*(reco_stat == 0)");
+	tree2->Project("h6", "reco_xf", "weight*(reco_stat == 0)");
+
+	h1->Scale(exp_lumi/int_lumi1);
+	h2->Scale(exp_lumi/int_lumi2);
+	h1->Add(h2);
+
+
+	h3->Scale(exp_lumi/int_lumi1);
+	h4->Scale(exp_lumi/int_lumi2);
+	h3->Add(h4);
+
+	h5->Scale(exp_lumi/int_lumi1);
+	h6->Scale(exp_lumi/int_lumi2);
+	h5->Add(h6);
+
+	//plot_hist(h1);
+	plot_hist(h3);
+	plot_hist(h5);
+
 }
