@@ -9,7 +9,7 @@ Instruction for installing these packages can be found in the given links.
 
 ## Data Creation
 
-Monte-Carlo data was created using the [SimChainDev](https://github.com/E1039-Collaboration/e1039-analysis/tree/master/SimChainDev) module and `make_tree.cc` script was used to create asymmetry added data with simple tree structure.
+Monte-Carlo data was created using the [SimChainDev](https://github.com/E1039-Collaboration/e1039-analysis/tree/master/SimChainDev) module and `run.sh` script was used to create asymmetry added data with simple tree structure. By defaul it assume taht names of the $\text{J}/\psi$ and Drell-Yan event files as `jpsi_data.root` and `drell_yan_data.root` respectively. Here Drell-Yan events were considered as background data.
 
 ## Analysis
 
@@ -22,4 +22,4 @@ Monte-Carlo data was created using the [SimChainDev](https://github.com/E1039-Co
 
 
 *	Use `jsroot` for interactive plots.
-*	Note that `ROOT` was build using `python2` in `gpvm` machine. Therefore, `jupyterlab` and `scikit-learn` will not work in `gpvm` machine.
+*	Note that `ROOT` was build using `python2` in `gpvm` machine. Therefore, `jupyterlab` and `scikit-learn` will not work in a `gpvm` machine.
