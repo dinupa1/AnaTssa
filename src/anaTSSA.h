@@ -226,7 +226,7 @@ tuple<double, double> integrate(TH1D* hist, double min, double max)
 	double error;
 	double bin1 = hist->FindBin(min);
 	double bin2 = hist->FindBin(max);
-	double count = hist->IntegralAndError(bin1, bin2, error, "width");
+	double count = hist->IntegralAndError(bin1, bin2, error);
 
 	return {count, error};
 }
