@@ -62,7 +62,7 @@ void train_tree(TString in_name, TString out_name, TString tree_name)
 		reco_stat = ed->rec_stat;
 		true_mass = true_dimu->at(0).mom.M();
 		true_phi = true_dimu->at(0).mom.Phi();
-		//double phi_weight = 1 + A_N* P* sin(true_phi + spin); // 0 or pi for spin up/down case -> weight make the histogram
+		//double phi_weight = 1 + A_N* P* D* sin(true_phi + spin); // 0 or pi for spin up/down case -> weight make the histogram
 		weight = ed->weight;
 		true_pt = true_dimu->at(0).mom.Perp();
 		true_x1 = true_dimu->at(0).x1;
